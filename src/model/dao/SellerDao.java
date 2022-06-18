@@ -15,5 +15,7 @@ public interface SellerDao {
 	//metodo que vai retornar um objeto seller recebendo o id dele
 	Seller findById(Integer id);
 	//metodo que retorna todos os seller
-	List<Department> findAll();
+	List<Seller> findAll();
+	//buscando por departamento
+	List<Seller> findByDepartment(Department department);
 }

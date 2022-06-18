@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -75,11 +76,57 @@ public class SellerDaoJDBC implements SellerDao{
 			DB.closeResultSet(rs);
 		}
 	}
-
+	
+	@Override
+	public List<Seller> findByDepartment(Department department) {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try {
+			ps = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "WHERE DepartmentId = ? "
+					+ "ORDER BY Name");
+			
+			ps.setInt(1, department.getId());
+			
+			rs = ps.executeQuery();
+			
+			List<Seller> list = new ArrayList<Seller>();
+			
+			// se tiver linhas para percorrer
+			while (rs.next()) {
+				
+				Seller obj = null;
+				//se não existir um derpartamento
+				if(department.getId().equals(null)) {
+					department = instantiateDepartment(rs);
+					obj = instantiateSeller(rs, department);
+					list.add(obj);
+				}else {
+					Department dep = new Department(department.getId(), null);
+					
+					obj = instantiateSeller(rs, dep);
+					list.add(obj);
+				}
+				
+			}
+			
+			return list;
+			
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(ps);
+			DB.closeResultSet(rs);
+		}
+	}
 	
 
 	@Override
-	public List<Department> findAll() {
+	public List<Seller> findAll() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -104,4 +151,6 @@ public class SellerDaoJDBC implements SellerDao{
 		
 		return obj;
 	}
+
+
 }
